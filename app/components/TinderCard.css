@@ -1,0 +1,18 @@
+.tinder-card {
+  position: absolute;
+  width: 320px;
+  max-width: 90vw;
+  height: 420px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.tinder-card:active {
+  cursor: grabbing;
+}
