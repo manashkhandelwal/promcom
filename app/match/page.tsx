@@ -1,23 +1,9 @@
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { redirect } from "next/dist/client/components/navigation";
 import { getMatches } from "../neo4j.action";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function MatchPage(){
-    const { isAuthenticated, getUser}=getKindeServerSession();
-
-    if(!(await isAuthenticated())){
-        return  redirect(
-        "/api/auth/login?post_login_redirect_url=http://localhost:3000/callback"
-        )
-    }
-    const user = await getUser();
-    if(!user){
-        return  redirect(
-        "/api/auth/login?post_login_redirect_url=http://localhost:3000/callback"
-        )
-    }
-    const matches = await getMatches(user.id);
+    const currentUserId = "user1"; // Hardcoded for demo without auth
+    const matches = await getMatches(currentUserId);
     return (
         <main>
             {matches.map((user) =>(
