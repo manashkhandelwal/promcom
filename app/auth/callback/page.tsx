@@ -17,10 +17,7 @@ export default function AuthCallback() {
 
       try {
         const result = await msalInstance.handleRedirectPromise();
-
-        const account =
-          result?.account ?? msalInstance.getAllAccounts()[0];
-
+        const account = result?.account ?? msalInstance.getAllAccounts()[0];
         if (account) {
           router.replace("/dashboard");
         } else {

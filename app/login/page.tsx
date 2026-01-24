@@ -25,7 +25,7 @@ export default function LoginPage() {
     await initializeMsal();
     await msalInstance.loginRedirect({
       scopes: ["openid", "profile", "email"],
-      prompt: "login",
+      prompt: "select_account",
     });
   };
 
