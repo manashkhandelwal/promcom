@@ -3,30 +3,52 @@
 import { driver } from "../db/index";
 import { Neo4JUser } from "@/types";
 
-export const getUserByID = async (id:string) => {
+export const getUserByID = async (id: string) => {
     const result = await driver.executeQuery(
         `MATCH (u:User { applicationId: $applicationId }) RETURN u`,
         { applicationId: id }
     );
     const users = result.records.map((record) => record.get("u").properties);
-    if(users.length === 0) return null;
+    if (users.length === 0) return null;
     return users[0] as Neo4JUser;
 };
 
 export const createUser = async (user: Neo4JUser) => {
-    const { applicationId, firstname, lastname, email } = user;
+    const { applicationId, fullName, email, phone, bio, hobbies, photoUrl } = user;
+
     await driver.executeQuery(
-        `CREATE (u:User { applicationId: $applicationId, firstname: $firstname, lastname: $lastname, email: $email })`,
-        { applicationId, firstname, lastname, email }
-    );          
+        `
+    MERGE (u:Student { applicationId: $applicationId })
+    ON CREATE SET
+      u.createdAt = datetime()
+    SET
+      u.fullName = $fullName,
+      u.email    = $email,
+      u.phone    = $phone,
+      u.bio      = $bio,
+      u.hobbies  = $hobbies,
+      u.photoUrl = $photoUrl
+    `,
+        {
+            applicationId,
+            fullName,
+            email,
+            phone,
+            bio,
+            hobbies,
+            photoUrl,
+        }
+    );
 };
 
-export const getUsersWithNoConnection = async (id:string) => {
+
+
+export const getUsersWithNoConnection = async (id: string) => {
     const result = await driver.executeQuery(
         `MATCH (cu:User { applicationId: $applicationId }) MATCH (ou: User) WHERE NOT (cu)-[:LIKE | :DISLIKE]->(ou) AND cu <> ou RETURN ou`,
         { applicationId: id }
     )
-    const users = result.records.map((record)=> record.get("ou").properties);
+    const users = result.records.map((record) => record.get("ou").properties);
     return users as Neo4JUser[];
 };
 
@@ -37,15 +59,15 @@ export const neo4jSwipe = async (id: string, swipe: string, userId: string) => {
         { id, userId }
     );
 
-    if (type === "LIKE"){
+    if (type === "LIKE") {
         const result = await driver.executeQuery(
-        `MATCH (cu: User { applicationId: $id }), (ou: User { applicationId: $userId }) WHERE (ou)-[:LIKE]->(cu) RETURN ou as match`,
-        { id, userId }
+            `MATCH (cu: User { applicationId: $id }), (ou: User { applicationId: $userId }) WHERE (ou)-[:LIKE]->(cu) RETURN ou as match`,
+            { id, userId }
         );
         const matches = result.records.map(
             (record) => record.get("match").properties
         );
-    return Boolean(matches.length > 0);
+        return Boolean(matches.length > 0);
     }
 }
 
