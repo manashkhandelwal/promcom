@@ -65,8 +65,7 @@ export async function POST(req: Request): Promise<Response> {
     if (!user) {
       const newUser: Neo4JUser = {
         applicationId,
-        firstname: userPayload.given_name || "",
-        lastname: userPayload.family_name || "",
+        fullName: userPayload.given_name || "",
         email,
       };
 
