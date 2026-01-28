@@ -64,7 +64,7 @@ export default function ProfilePage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => prev && { ...prev, [name]: value });
+    setForm((prev) => prev && { ...prev, [name]: name === "age" ? Number(value) : value });
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,13 +138,16 @@ export default function ProfilePage() {
             <label htmlFor="age" className="block text-sm font-medium text-gray-700">
               Age
             </label>
+            <p className="text-xs text-gray-500">valid age is between 18 and 24</p>
             <input
               id="age"
               name="age"
-              type="age"
+              type="number"
+              min="18"
+              max="24"
               value={form.age}
               onChange={onChange}
-              className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-500 "
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
               required
               placeholder="Enter your age"
             />
@@ -168,6 +171,7 @@ export default function ProfilePage() {
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
               Phone Number
             </label>
+            <p className="text-xs text-gray-500">Your no is only visible when you get a successfull match</p>
             <input
               id="phone"
               name="phone"
@@ -216,6 +220,7 @@ export default function ProfilePage() {
             <label htmlFor="profile-picture" className="block text-sm font-medium text-gray-700">
               Profile Picture
             </label>
+            <p className="text-xs text-gray-500">File size should not be larger than 9MB</p>
             <input
               id="profile-picture"
               type="file"

@@ -13,6 +13,13 @@ export const getUserByID = async (id: string) => {
     return users[0] as Neo4JUser;
 };
 
+export const deleteUserByEmail = async (email: string) => {
+    await driver.executeQuery(
+        `MATCH (u:User { email: $email }) DELETE u`,
+        { email }
+    );
+}
+
 export const getUserByEmail = async (email: string) => {
     const result = await driver.executeQuery(
         `MATCH (u:User { email: $email }) RETURN u`,
@@ -43,7 +50,35 @@ export const createUser = async (user: Neo4JUser) => {
         {
             applicationId,
             fullName,
-            age: age ?? null,
+            age: age ?? 18,
+            email,
+            phone,
+            bio,
+            hobbies,
+            photoUrl,
+        }
+    );
+};
+
+export const updateUser = async (user: Neo4JUser) => {
+    const { applicationId, fullName, age, email, phone, bio, hobbies, photoUrl } = user;
+
+    await driver.executeQuery(
+        `
+    MATCH (u:Student { applicationId: $applicationId })
+    SET
+      u.fullName = $fullName,
+      u.age = $age,
+      u.email    = $email,
+      u.phone    = $phone,
+      u.bio      = $bio,
+      u.hobbies  = $hobbies,
+      u.photoUrl = $photoUrl
+    `,
+        {
+            applicationId,
+            fullName,
+            age: age ?? 0,
             email,
             phone,
             bio,
