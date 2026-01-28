@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { msalInstance, initializeMsal } from "@/lib/msal";
+import { getUserByEmail } from "../../neo4j.action";
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -19,7 +20,16 @@ export default function AuthCallback() {
         const result = await msalInstance.handleRedirectPromise();
         const account = result?.account ?? msalInstance.getAllAccounts()[0];
         if (account) {
-          router.replace("/dashboard");
+          if (account.username) {
+            const user = await getUserByEmail(account.username);
+            if (user) {
+              router.replace("/home");
+            } else {
+              router.replace("/profile");
+            }
+          } else {
+            router.replace("/login");
+          }
         } else {
           router.replace("/login");
         }

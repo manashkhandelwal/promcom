@@ -8,6 +8,7 @@ type FormState = {
   fullName: string;
   email: string;
   phone: string;
+  age: number;
   bio: string;
   hobbies: string;
   photo: File | null;
@@ -43,6 +44,7 @@ export default function ProfilePage() {
           phone: "",
           bio: "",
           hobbies: "",
+          age: 0,
           photo: null,
         });
       } catch (err) {
@@ -91,6 +93,7 @@ export default function ProfilePage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         fullName: form.fullName,
+        age: form.age,
         email: form.email,
         phone: form.phone,
         bio: form.bio,
@@ -128,6 +131,22 @@ export default function ProfilePage() {
               required
               disabled
               placeholder="Enter your full name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="age" className="block text-sm font-medium text-gray-700">
+              Age
+            </label>
+            <input
+              id="age"
+              name="age"
+              type="age"
+              value={form.age}
+              onChange={onChange}
+              className="w-full px-4 py-3 rounded-md border border-gray-300 bg-gray-50 text-gray-500 "
+              required
+              placeholder="Enter your age"
             />
           </div>
 
@@ -202,6 +221,7 @@ export default function ProfilePage() {
               type="file"
               accept="image/*"
               onChange={onFileChange}
+              required
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black file:text-white hover:file:bg-gray-800 file:cursor-pointer cursor-pointer"
             />
           </div>
