@@ -8,6 +8,7 @@ type FormState = {
   fullName: string;
   email: string;
   phone: string;
+  age: number;
   bio: string;
   hobbies: string;
   photo: File | null;
@@ -43,6 +44,7 @@ export default function ProfilePage() {
           phone: "",
           bio: "",
           hobbies: "",
+          age: 0,
           photo: null,
         });
       } catch (err) {
@@ -62,7 +64,10 @@ export default function ProfilePage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => prev && { ...prev, [name]: value });
+    setForm(
+      (prev) =>
+        prev && { ...prev, [name]: name === "age" ? Number(value) : value },
+    );
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,6 +96,7 @@ export default function ProfilePage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         fullName: form.fullName,
+        age: form.age,
         email: form.email,
         phone: form.phone,
         bio: form.bio,
@@ -139,6 +145,30 @@ export default function ProfilePage() {
 
           <div className="space-y-2">
             <label
+              htmlFor="age"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Age
+            </label>
+            <p className="text-xs text-gray-500">
+              valid age is between 18 and 24
+            </p>
+            <input
+              id="age"
+              name="age"
+              type="number"
+              min="18"
+              max="24"
+              value={form.age}
+              onChange={onChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+              required
+              placeholder="Enter your age"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
               htmlFor="email"
               className="block text-sm font-medium text-gray-700"
             >
@@ -161,6 +191,9 @@ export default function ProfilePage() {
             >
               Phone Number
             </label>
+            <p className="text-xs text-gray-500">
+              Your no is only visible when you get a successfull match
+            </p>
             <input
               id="phone"
               name="phone"
@@ -220,11 +253,15 @@ export default function ProfilePage() {
             >
               Profile Picture
             </label>
+            <p className="text-xs text-gray-500">
+              File size should not be larger than 9MB
+            </p>
             <input
               id="profile-picture"
               type="file"
               accept="image/*"
               onChange={onFileChange}
+              required
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black file:text-white hover:file:bg-gray-800 file:cursor-pointer cursor-pointer"
             />
           </div>

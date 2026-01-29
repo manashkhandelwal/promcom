@@ -4,6 +4,7 @@ import { msalInstance, initializeMsal } from "@/lib/msal";
 import { Mail, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getUserByEmail } from "../neo4j.action";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,7 +15,13 @@ export default function LoginPage() {
       await initializeMsal();
       const accounts = msalInstance.getAllAccounts();
       if (accounts.length > 0) {
-        router.replace("/dashboard");
+        const account = accounts[0];
+        const user = await getUserByEmail(account.username);
+        if (user) {
+          router.replace("/home");
+        } else {
+          router.replace("/profile");
+        }
       }
     };
 

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { getUserByID, createUser } from "@/app/neo4j.action";
 import { Neo4JUser } from "@/types";
+import router from "next/router";
 
 const tenantId = process.env.NEXT_PUBLIC_TENANT_ID as string;
 const clientId = process.env.NEXT_PUBLIC_AZURE_CLIENT_ID as string;
@@ -63,14 +64,15 @@ export async function POST(req: Request): Promise<Response> {
 
     // 🆕 Create user if not exists
     if (!user) {
-      const newUser: Neo4JUser = {
-        applicationId,
-        fullName: userPayload.given_name || "",
-        email,
-      };
+      // const newUser: Neo4JUser = {
+      //   applicationId,
+      //   fullName: userPayload.given_name || "",
+      //   email,
+      // };
 
-      await createUser(newUser);
-      user = newUser;
+      // await createUser(newUser);
+      // user = newUser;
+      router.replace("/profile");
     }
 
     // ✅ Auth success
