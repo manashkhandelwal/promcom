@@ -42,7 +42,7 @@ export default function DashboardPage() {
   const user = accounts[0];
   const userName = user?.name || "User";
   const userEmail = user?.username || "";
-
+  console.log("Auth callback successful", user);
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

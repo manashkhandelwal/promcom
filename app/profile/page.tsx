@@ -59,7 +59,7 @@ export default function ProfilePage() {
   }
 
   const onChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => prev && { ...prev, [name]: value });
@@ -104,19 +104,25 @@ export default function ProfilePage() {
 
     setLoading(false);
     alert("Profile saved");
+    router.replace("/home");
   };
 
   return (
     <form onSubmit={onSubmit} className="max-w-2xl mx-auto p-8">
       <div className="space-y-6">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Complete your profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Complete your profile
+          </h1>
           <p className="text-gray-600">Fill in your details to get started</p>
         </div>
 
         <div className="space-y-5">
           <div className="space-y-2">
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="fullName"
+              className="block text-sm font-medium text-gray-700"
+            >
               Full Name
             </label>
             <input
@@ -132,7 +138,10 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email
             </label>
             <input
@@ -146,7 +155,10 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700"
+            >
               Phone Number
             </label>
             <input
@@ -157,12 +169,15 @@ export default function ProfilePage() {
               onChange={onChange}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
               required
-              placeholder="+1 (555) 000-0000"
+              placeholder="+910000000000"
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="bio"
+              className="block text-sm font-medium text-gray-700"
+            >
               Bio
             </label>
             <textarea
@@ -178,7 +193,10 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="hobbies" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="hobbies"
+              className="block text-sm font-medium text-gray-700"
+            >
               Hobbies
             </label>
             <input
@@ -190,11 +208,16 @@ export default function ProfilePage() {
               required
               placeholder="Reading, Traveling, Photography..."
             />
-            <p className="text-xs text-gray-500">Separate multiple hobbies with commas</p>
+            <p className="text-xs text-gray-500">
+              Separate multiple hobbies with commas
+            </p>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="profile-picture" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="profile-picture"
+              className="block text-sm font-medium text-gray-700"
+            >
               Profile Picture
             </label>
             <input
