@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createUser } from "../../neo4j.action";
+import { updateUser } from "../../neo4j.action";
 
 export async function POST(req: Request) {
     const body = await req.json();
@@ -8,7 +8,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error: "Age must be between 18 and 24" }, { status: 400 });
     }
 
-    await createUser({
+    await updateUser({
         applicationId: body.email, // or auth id
         ...body,
     });
