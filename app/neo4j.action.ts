@@ -5,7 +5,7 @@ import { Neo4JUser } from "@/types";
 
 export const getUserByID = async (id: string) => {
     const result = await driver.executeQuery(
-        `MATCH (u:User { applicationId: $applicationId }) RETURN u`,
+        `MATCH (u:Student { applicationId: $applicationId }) RETURN u`,
         { applicationId: id }
     );
     const users = result.records.map((record) => record.get("u").properties);
@@ -15,14 +15,14 @@ export const getUserByID = async (id: string) => {
 
 export const deleteUserByEmail = async (email: string) => {
     await driver.executeQuery(
-        `MATCH (u:User { email: $email }) DELETE u`,
+        `MATCH (u:Student { email: $email }) DELETE u`,
         { email }
     );
 }
 
 export const getUserByEmail = async (email: string) => {
     const result = await driver.executeQuery(
-        `MATCH (u:User { email: $email }) RETURN u`,
+        `MATCH (u:Student { email: $email }) RETURN u`,
         { email }
     );
     const users = result.records.map((record) => record.get("u").properties);
@@ -78,7 +78,7 @@ export const updateUser = async (user: Neo4JUser) => {
         {
             applicationId,
             fullName,
-            age: age ?? 0,
+            age: age ?? 18,
             email,
             phone,
             bio,
@@ -92,7 +92,7 @@ export const updateUser = async (user: Neo4JUser) => {
 
 export const getUsersWithNoConnection = async (id: string) => {
     const result = await driver.executeQuery(
-        `MATCH (cu:User { applicationId: $applicationId }) MATCH (ou: User) WHERE NOT (cu)-[:LIKE | :DISLIKE]->(ou) AND cu <> ou RETURN ou`,
+        `MATCH (cu:Student { applicationId: $applicationId }) MATCH (ou: Student) WHERE NOT (cu)-[:LIKE | DISLIKE]->(ou) AND cu <> ou RETURN ou`,
         { applicationId: id }
     )
     const users = result.records.map((record) => record.get("ou").properties);
@@ -102,13 +102,13 @@ export const getUsersWithNoConnection = async (id: string) => {
 export const neo4jSwipe = async (id: string, swipe: string, userId: string) => {
     const type = swipe === "left" ? "DISLIKE" : "LIKE";
     await driver.executeQuery(
-        `MATCH (cu: User { applicationId: $id }), (ou:User { applicationId: $userId }) CREATE (cu)-[:${type}]->(ou)`,
+        `MATCH (cu: Student { applicationId: $id }), (ou:Student { applicationId: $userId }) CREATE (cu)-[:${type}]->(ou)`,
         { id, userId }
     );
 
     if (type === "LIKE") {
         const result = await driver.executeQuery(
-            `MATCH (cu: User { applicationId: $id }), (ou: User { applicationId: $userId }) WHERE (ou)-[:LIKE]->(cu) RETURN ou as match`,
+            `MATCH (cu: Student { applicationId: $id }), (ou: Student { applicationId: $userId }) WHERE (ou)-[:LIKE]->(cu) RETURN ou as match`,
             { id, userId }
         );
         const matches = result.records.map(
@@ -121,7 +121,7 @@ export const neo4jSwipe = async (id: string, swipe: string, userId: string) => {
 
 export const getMatches = async (currentUserId: string) => {
     const result = await driver.executeQuery(
-        `MATCH (cu: User { applicationId: $id })-[:LIKE]->(ou: User)-[:LIKE]->(cu) RETURN ou as match`,
+        `MATCH (cu: Student { applicationId: $id })-[:LIKE]->(ou: Student)-[:LIKE]->(cu) RETURN ou as match`,
         { id: currentUserId }
     );
     const matches = result.records.map(
