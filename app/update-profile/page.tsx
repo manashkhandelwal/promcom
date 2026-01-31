@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { msalInstance, initializeMsal } from "@/lib/msal";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRequireAuth } from "../context/UserContext";
 
 type FormState = {
     fullName: string;
@@ -15,48 +14,36 @@ type FormState = {
 };
 
 export default function ProfilePage() {
-    const router = useRouter();
-    const handledRef = useRef(false);
-
+    const { isLoading, currentUser, email } = useRequireAuth();
     const [form, setForm] = useState<FormState | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        if (handledRef.current) return;
-        handledRef.current = true;
+        if (!isLoading && currentUser) {
+            setForm({
+                fullName: currentUser.fullName || "User",
+                email: currentUser.applicationId || email || "",
+                phone: currentUser.phone || "",
+                bio: currentUser.bio || "",
+                hobbies: currentUser.hobbies?.join(", ") || "",
+                age: currentUser.age || 0,
+                photo: null,
+            });
+        } else if (!isLoading && email) {
+            // New user without a profile yet
+            setForm({
+                fullName: "User",
+                email: email,
+                phone: "",
+                bio: "",
+                hobbies: "",
+                age: 0,
+                photo: null,
+            });
+        }
+    }, [isLoading, currentUser, email]);
 
-        const run = async () => {
-            try {
-                await initializeMsal();
-
-                const result = await msalInstance.handleRedirectPromise();
-                const account = result?.account ?? msalInstance.getAllAccounts()[0];
-
-                if (!account) {
-                    router.replace("/login");
-                    return;
-                }
-
-                // ✅ MSAL is initialized here
-                setForm({
-                    fullName: account.name || "User",
-                    email: account.username,
-                    phone: "",
-                    bio: "",
-                    hobbies: "",
-                    age: 0,
-                    photo: null,
-                });
-            } catch (err) {
-                console.error("Auth init failed", err);
-                router.replace("/login");
-            }
-        };
-
-        run();
-    }, [router]);
-
-    if (!form) {
+    if (isLoading || !form) {
         return <p className="text-center mt-10">Loading profile…</p>;
     }
 
@@ -74,7 +61,7 @@ export default function ProfilePage() {
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
+        setSaving(true);
 
         let photoUrl: string | undefined;
 
@@ -105,7 +92,7 @@ export default function ProfilePage() {
             }),
         });
 
-        setLoading(false);
+        setSaving(false);
         alert("Profile saved");
     };
 
@@ -234,10 +221,10 @@ export default function ProfilePage() {
 
                 <button
                     type="submit"
-                    disabled={loading}
+                    disabled={saving}
                     className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
                 >
-                    {loading ? "Saving..." : "Save Profile"}
+                    {saving ? "Saving..." : "Save Profile"}
                 </button>
             </div>
         </form>

@@ -12,6 +12,7 @@ type FormState = {
   bio: string;
   hobbies: string;
   photo: File | null;
+  photoUrl?: string;
 };
 
 export default function ProfilePage() {
@@ -20,6 +21,7 @@ export default function ProfilePage() {
 
   const [form, setForm] = useState<FormState | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isExistingUser, setIsExistingUser] = useState(false);
 
   useEffect(() => {
     if (handledRef.current) return;
@@ -37,18 +39,38 @@ export default function ProfilePage() {
           return;
         }
 
-        // ✅ MSAL is initialized here
-        setForm({
-          fullName: account.name || "User",
-          email: account.username,
-          phone: "",
-          bio: "",
-          hobbies: "",
-          age: 0,
-          photo: null,
-        });
+        // 🔍 Check if profile exists
+        const res = await fetch(`/api/get-profile?email=${account.username}`);
+
+        if (res.ok) {
+          const data = await res.json();
+
+          setIsExistingUser(true);
+
+          setForm({
+            fullName: data.fullName,
+            email: data.email,
+            age: data.age,
+            phone: data.phone,
+            bio: data.bio,
+            hobbies: data.hobbies.join(", "),
+            photo: null,
+            photoUrl: data.photoUrl,
+          });
+        } else {
+          // 🆕 New user
+          setForm({
+            fullName: account.name || "User",
+            email: account.username,
+            phone: "",
+            bio: "",
+            hobbies: "",
+            age: 0,
+            photo: null,
+          });
+        }
       } catch (err) {
-        console.error("Auth init failed", err);
+        console.error(err);
         router.replace("/login");
       }
     };
@@ -64,9 +86,13 @@ export default function ProfilePage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
+
     setForm(
       (prev) =>
-        prev && { ...prev, [name]: name === "age" ? Number(value) : value },
+        prev && {
+          ...prev,
+          [name]: name === "age" ? Number(value) : value,
+        },
     );
   };
 
@@ -79,7 +105,7 @@ export default function ProfilePage() {
     e.preventDefault();
     setLoading(true);
 
-    let photoUrl: string | undefined;
+    let photoUrl = form.photoUrl;
 
     if (form.photo) {
       const base64 = await toBase64(form.photo);
@@ -87,42 +113,47 @@ export default function ProfilePage() {
         method: "POST",
         body: JSON.stringify({ base64 }),
       });
+
       const data = await res.json();
       photoUrl = data.photoUrl;
     }
 
-    await fetch("/api/create-profile", {
+    const payload = {
+      fullName: form.fullName,
+      email: form.email,
+      age: form.age,
+      phone: form.phone,
+      bio: form.bio,
+      hobbies: form.hobbies
+        .split(",")
+        .map((h) => h.trim())
+        .filter(Boolean),
+      photoUrl,
+    };
+
+    const endpoint = isExistingUser
+      ? "/api/update-profile"
+      : "/api/create-profile";
+
+    await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fullName: form.fullName,
-        age: form.age,
-        email: form.email,
-        phone: form.phone,
-        bio: form.bio,
-        hobbies: form.hobbies
-          .split(",")
-          .map((h) => h.trim())
-          .filter(Boolean),
-        photoUrl,
-      }),
+      body: JSON.stringify(payload),
     });
 
     setLoading(false);
-    alert("Profile saved");
+    alert(isExistingUser ? "Profile updated" : "Profile created");
     router.replace("/home");
   };
 
   return (
     <form onSubmit={onSubmit} className="max-w-2xl mx-auto p-8">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Complete your profile
-          </h1>
-          <p className="text-gray-600">Fill in your details to get started</p>
-        </div>
+        <h1 className="text-3xl font-bold mb-6">
+          {isExistingUser ? "Edit Profile" : "Complete your profile"}
+        </h1>
 
+        {/* Full name (always locked) */}
         <div className="space-y-5">
           <div className="space-y-2">
             <label
@@ -135,14 +166,11 @@ export default function ProfilePage() {
               id="fullName"
               name="fullName"
               value={form.fullName}
-              onChange={onChange}
+              disabled
               className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed"
               required
-              disabled
-              placeholder="Enter your full name"
             />
           </div>
-
           <div className="space-y-2">
             <label
               htmlFor="age"
@@ -153,20 +181,22 @@ export default function ProfilePage() {
             <p className="text-xs text-gray-500">
               valid age is between 18 and 24
             </p>
+
+            {/* Age (locked after creation) */}
             <input
               id="age"
               name="age"
               type="number"
-              min="18"
-              max="24"
               value={form.age}
+              disabled={isExistingUser}
               onChange={onChange}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+              min={18}
+              max={24}
               required
               placeholder="Enter your age"
             />
           </div>
-
           <div className="space-y-2">
             <label
               htmlFor="email"
@@ -174,16 +204,18 @@ export default function ProfilePage() {
             >
               Email
             </label>
+            {/* Email locked */}
             <input
-              id="email"
               name="email"
-              type="email"
               value={form.email}
               disabled
               className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed"
+              id="email"
+              required
             />
           </div>
 
+          {/* Editable fields */}
           <div className="space-y-2">
             <label
               htmlFor="phone"
@@ -191,9 +223,6 @@ export default function ProfilePage() {
             >
               Phone Number
             </label>
-            <p className="text-xs text-gray-500">
-              Your no is only visible when you get a successfull match
-            </p>
             <input
               id="phone"
               name="phone"
@@ -201,11 +230,10 @@ export default function ProfilePage() {
               value={form.phone}
               onChange={onChange}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-              required
               placeholder="+910000000000"
+              required
             />
           </div>
-
           <div className="space-y-2">
             <label
               htmlFor="bio"
@@ -214,24 +242,24 @@ export default function ProfilePage() {
               Bio
             </label>
             <textarea
-              id="bio"
               name="bio"
               value={form.bio}
               onChange={onChange}
-              rows={4}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all resize-none"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+              id="bio"
               required
-              placeholder="Tell us a bit about yourself..."
+              rows={4}
+              placeholder="Tell us about yourself"
             />
           </div>
-
           <div className="space-y-2">
             <label
               htmlFor="hobbies"
               className="block text-sm font-medium text-gray-700"
             >
-              Hobbies
+              Hobbies (comma separated)
             </label>
+
             <input
               id="hobbies"
               name="hobbies"
@@ -241,39 +269,41 @@ export default function ProfilePage() {
               required
               placeholder="Reading, Traveling, Photography..."
             />
-            <p className="text-xs text-gray-500">
-              Separate multiple hobbies with commas
-            </p>
           </div>
-
           <div className="space-y-2">
             <label
               htmlFor="profile-picture"
               className="block text-sm font-medium text-gray-700"
             >
-              Profile Picture
+              Profile Photo
             </label>
             <p className="text-xs text-gray-500">
               File size should not be larger than 9MB
             </p>
+            {/* Existing photo preview */}
+            {form.photoUrl && (
+              <img
+                src={form.photoUrl}
+                className="w-32 h-32 rounded-full object-cover mb-2"
+              />
+            )}
+
             <input
               id="profile-picture"
               type="file"
               accept="image/*"
               onChange={onFileChange}
-              required
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black file:text-white hover:file:bg-gray-800 file:cursor-pointer cursor-pointer"
             />
           </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+          >
+            {loading ? "Saving..." : "Save"}
+          </button>
         </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
-        >
-          {loading ? "Saving..." : "Save Profile"}
-        </button>
       </div>
     </form>
   );

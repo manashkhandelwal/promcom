@@ -9,7 +9,7 @@ const msalConfig: Configuration = {
     clientId: process.env.NEXT_PUBLIC_AZURE_CLIENT_ID as string,
     authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_TENANT_ID}`,
     redirectUri: "http://localhost:3000/auth/callback",
-    postLogoutRedirectUri: "http://localhost:3000/login",
+    postLogoutRedirectUri: "http://localhost:3000/",
   },
   cache: {
     cacheLocation: BrowserCacheLocation.LocalStorage,
