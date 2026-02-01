@@ -1,26 +1,14 @@
 import { NextResponse } from "next/server";
-import { updateUser } from "../../neo4j.action";
+import cloudinary from "../../../lib/cloudinary";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  const { base64 } = await req.json();
 
-  if (body.age < 18 || body.age > 24) {
-    return NextResponse.json(
-      { success: false, error: "Age must be between 18 and 24" },
-      { status: 400 },
-    );
-  }
-
-  await updateUser({
-    applicationId: body.email,
-    fullName: body.fullName,
-    age: body.age,
-    email: body.email,
-    phone: body.phone,
-    bio: body.bio,
-    hobbies: body.hobbies,
-    photoUrl: body.photoUrl,
+  const result = await cloudinary.uploader.upload(base64, {
+    folder: "students",
   });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    photoUrl: result.secure_url,
+  });
 }
