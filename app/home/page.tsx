@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import HomepageClientComponent from "../components/Home";
-import { getUsersWithNoConnection } from "../neo4j.action";
 import { Neo4JUser } from "@/types";
 import { useRequireAuth } from "../context/UserContext";
 
@@ -13,12 +12,16 @@ export default function Home() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!currentUser?.applicationId) return;
+      if (!currentUser?.applicationId) {
+        setLoadingUsers(false);
+        return;
+      }
 
       try {
-        const others = await getUsersWithNoConnection(
-          currentUser.applicationId,
+        const res = await fetch(
+          `/api/get-suggestions?applicationId=${currentUser.applicationId}`
         );
+        const others = await res.json();
         setUsers(others);
       } catch (err) {
         console.error("Failed to load users:", err);

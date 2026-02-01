@@ -6,6 +6,7 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { Lock, GraduationCap, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Header from "./components/Header";
+import { getUserByEmail } from "./neo4j.action";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -18,8 +19,13 @@ export default function Home() {
         const accounts = msalInstance.getAllAccounts();
 
         if (accounts.length > 0) {
-          // Redirect authenticated users to dashboard
-          router.replace("/dashboard");
+          const account = accounts[0];
+          const user = await getUserByEmail(account.username);
+          if (user) {
+            router.replace("/home");
+          } else {
+            router.replace("/login");
+          }
         } else {
           setIsLoading(false);
         }
