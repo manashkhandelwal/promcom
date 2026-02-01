@@ -58,6 +58,9 @@ export default function LoginPage() {
               <p className="text-gray-500 text-sm">
                 Use your Microsoft account to sign in securely
               </p>
+              <p className="text-center text-sm text-gray-500 mt-2">
+                By signing in, you agree to our <a href="https://docs.google.com/document/d/1njywwovzIdzfnz-dIDgPnKCwSj17rONLKFlt5weegWk/edit?usp=sharing">Terms of Service</a> and Privacy Policy.
+              </p>
             </div>
 
             {/* Login Button */}
@@ -93,7 +96,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-500 mt-8">
-          By signing in, you agree to our Terms of Service and Privacy Policy
+          By signing in, you agree to our <a href="https://docs.google.com/document/d/1njywwovzIdzfnz-dIDgPnKCwSj17rONLKFlt5weegWk/edit?usp=sharing">Terms of Service</a> and Privacy Policy.
         </p>
       </div>
     </main>

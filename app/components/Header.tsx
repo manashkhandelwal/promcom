@@ -35,12 +35,8 @@ export default function Header() {
           </button>
         </div>
         <PopoverGroup className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-sm/6 font-semibold text-gray-900">
+          <a href="https://github.com/manashkhandelwal/promcom" className="text-sm/6 font-semibold text-gray-900">
             Visit our GitHub
-          </a>
-
-          <a href="#" className="text-sm/6 font-semibold text-gray-900">
-            Support Us
           </a>
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
