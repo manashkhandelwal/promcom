@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^5.0.2",
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@react-spring/web": "^9.5.5",
