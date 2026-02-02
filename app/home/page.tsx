@@ -39,6 +39,8 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin h-8 w-8 border-b-2 border-black rounded-full" />
+        <p>Loading...</p>
+        <p>if it take more than 30 seconds, refresh the page</p>
       </div>
     );
   }
