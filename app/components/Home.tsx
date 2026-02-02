@@ -123,7 +123,7 @@ const HomepageClientComponent: React.FC<HomepageClientComponentProps> = ({
                             Interests
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            {user.hobbies[0].split(" ").map((hobby, idx) => (
+                            {user.hobbies.map((hobby, idx) => (
                               <span
                                 key={idx}
                                 className="inline-block px-3 py-1 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 text-xs font-medium rounded-full"

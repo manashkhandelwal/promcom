@@ -125,7 +125,7 @@ export default function ProfilePage() {
       phone: form.phone,
       bio: form.bio,
       hobbies: form.hobbies
-        .split(",")
+        .split(" ")
         .map((h) => h.trim())
         .filter(Boolean),
       photoUrl,
@@ -257,7 +257,7 @@ export default function ProfilePage() {
               htmlFor="hobbies"
               className="block text-sm font-medium text-gray-700"
             >
-              Hobbies (comma separated)
+              Hobbies (space separated)
             </label>
 
             <input
